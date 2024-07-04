@@ -31,20 +31,43 @@ class MtsApi:
             log.error(f"Ошибка получения токена от МТС: {response.status_code} - {response.text}")
 
     def get_all_sims(self, parent_tel_number: str):
+        """ 
+        Метод для получения всех SIM-карт Не работает
+        :param parent_tel_number: str
+        :return: str
+        """
         url = f"{self.base_url}/b2b/v1/Resources/GetAvailableSIM"
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.access_token}",
         }
         data = {
-        "Msisdn": f"{parent_tel_number}",
+        "Msisdn": f"{parent_tel_number}"
         }
         response = requests.post(url=url, headers=headers, data=data)
         return response.text
 
+    def get_structure_abonents(self):
+        """ 
+        Метод для получения структуры абонентов
+        :return: dict
+        """
+        url = f"{self.base_url}/b2b/v1/Service/HierarchyStructure"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+        }
+        response = requests.get(url=url, headers=headers)
+        return response.json()
 
-biline_api = MtsApi(base_url, username, password)
-biline_api.get_access_token()
-all_sims = biline_api.get_all_sims(parent_tel_number)
-print(all_sims)
+
+mts_api = MtsApi(base_url, username, password)
+mts_api.get_access_token()
+#all_sims = mts_api.get_all_sims(parent_tel_number)
+structure_abonents = mts_api.get_structure_abonents()
+print(structure_abonents)
+
+# with open('structure_abonents_mts.json', 'w', encoding='utf-8') as file:
+#     json.dump(structure_abonents, file, indent=2, ensure_ascii=False)
+
 

@@ -22,6 +22,10 @@ class BilineApi:
         self.access_token = None
 
     def get_access_token(self):
+        """
+        Метод для получения токена доступа
+        :return: str
+        """
         url = f"{self.base_url}/oauth/token"
         data = {
             "username": self.username,
@@ -44,7 +48,13 @@ class BilineApi:
         else:
             log.error(f"Ошибка получения токена от Билайн: {response.status_code} - {response.text}")
 
+
     def get_all_sims(self, dashboard_id: str):
+        """ 
+        Метод для получения всех SIM-карт Требуется пагинация
+        :param dashboard_id: str
+        :return: str
+        """
         url = f"{self.base_url}/api/v0/dashboards/{dashboard_id}/sim_cards/list_all_sim"
         headers = {
             "Content-Type": "application/json",
@@ -58,4 +68,4 @@ class BilineApi:
 biline_api = BilineApi(base_url, client_id, client_secret, username, password)
 biline_api.get_access_token()
 all_sims = biline_api.get_all_sims(dashboard_id)
-
+print(all_sims)
