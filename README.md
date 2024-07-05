@@ -2,7 +2,7 @@
 ## Установка
 1. Скопировать этот репозиторий в любой место: `git clone https://github.com/Jagernau/sim_connect`
 2. Перейти в директорию `sim_connect`
-3. Создать виртуальное окружение: `python3.10 -m venv venv`
+3. Создать виртуальное окружение: `python3.10 -m virtualenv env`
 4. Активировать виртуальное окружение: `source venv/bin/activate`
 5. Установить зависимости: `pip install -r requirements.txt`
 6. Создать файл .env: `touch .env` с конфигурацией:
