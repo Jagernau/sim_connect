@@ -65,7 +65,7 @@ class BilineApi:
         return response.json()
 
 
-biline_api = BilineApi(base_url, client_id, client_secret, username, password)
-biline_api.get_access_token()
-all_sims = biline_api.get_all_sims(dashboard_id)
-print(all_sims)
+# biline_api = BilineApi(base_url, client_id, client_secret, username, password)
+# biline_api.get_access_token()
+# all_sims = biline_api.get_all_sims(dashboard_id)
+# print(all_sims)
