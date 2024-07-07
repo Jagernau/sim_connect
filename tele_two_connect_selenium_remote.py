@@ -86,7 +86,8 @@ class TeleTwoParser:
     def get_lk_page_title(self):
         """
         Метод для получения заголовка страницы
-        :return: str
+        Возвращает заголовок страницы:
+        При успешном входе в личный кабинет: Tele2 - оператор мобильной связи
         """
         try:
             time.sleep(random.randint(10, 20))
@@ -95,17 +96,109 @@ class TeleTwoParser:
             return page_title
         except Exception as ex:
             log.error(f"Заголовок страницы не получен: {ex}")
-            self.browser.quit()
             return None
+
+    def go_to_first_abon_page(self):
+        """
+        Метод для перехода на первую страницу абонентов
+        """
+        try:
+            time.sleep(random.randint(10, 20))
+            self.browser.get(f"{self.base_url}/subscribers")
+            log.info(f"Перешли на первую страницу абонентов {self.browser.title}")
+            time.sleep(random.randint(10, 20))
+        except Exception as ex:
+            log.error(f"Перейти на первую страницу абонентов не получилось: {ex}")
+            return None
+
+    def get_abon_page_title(self):
+        """
+        Метод для получения заголовка страницы
+        Возвращает заголовок страницы:
+        При успешном входе в личный кабинет: Tele2 - оператор мобильной связи
+        """
+        try:
+            time.sleep(random.randint(10, 20))
+            page_title = self.browser.title
+            log.info(f"Заголовок страницы: {page_title}")
+            return page_title
+        except Exception as ex:
+            log.error(f"Заголовок страницы не получен: {ex}")
+            return None
+
+    def get_curent_max_paginatios_pages(self):
+        """
+        Метод для получения страниц пагинации
+        Отдаёт словарь с информацией о страницах:
+        {
+            "pagingPrevLink", или "pagingNextLink", или "pagingLinkPageЧисло": {
+                "text": "Числи", или "<<", или ">>"
+                "class": "curent", или "disabled", или " "
+            }
+        }
+
+        """
+        # Поиск элемента с классом "paging-links"
+        try:
+            paging_links_element = self.browser.find_element(By.CSS_SELECTOR, "span.paging-links")
+
+        except Exception as ex:
+            log.error(f"Не удалось найти элемент с пагинацией: {ex}")
+            return None
+        else:
+            # Получение всех элементов пагинации
+            pagination_elements = paging_links_element.find_elements(By.TAG_NAME, "a")
+            pages = {}
+
+            # Вывод информации о каждом элементе пагинации
+            for pagination_element in pagination_elements:
+                element_id = pagination_element.get_attribute("id")
+                element_text = pagination_element.text
+                element_class = pagination_element.get_attribute("class")
+
+                pages[element_id] = {
+                    "text": element_text,
+                    "class": element_class
+                }
+                
+            return pages
+
+# Дальнейшие действия после
 
 
 tele_two_parser = TeleTwoParser(base_url, tel_number, password)
-
+# Вход в ЛК
 tele_two_parser.enter_to_lk_page()
+# Проверка корректности отдачи страницы
 page_title = tele_two_parser.get_lk_page_title()
 if page_title and 'мобильной связи' in str(page_title):
-    print(f"Заголовок страницы: {page_title}")
+    print(f"Успешно залогинились в Лк: {page_title}")
+    # Переход на первую страницу абонентов
+    tele_two_parser.go_to_first_abon_page()
+    # Проверка корректности отдачи страницы
+    first_page_title = tele_two_parser.get_abon_page_title()
+    if first_page_title and 'оператор мобильной' in str(first_page_title):
+        print(f"Успешно перешли на первую страницу абонентов: {first_page_title}")
+        # Получение сраниц для обхода
+        pages = tele_two_parser.get_curent_max_paginatios_pages()
+        if pages != None:
+            print(f"pages: {pages}")
+        else:
+            print("Не удалось получить количество страниц для пагинации")
+            print(f"Перезахожу на первую страницу абонентов")
+            tele_two_parser.go_to_first_abon_page()
+            second_try_page_title = tele_two_parser.get_abon_page_title()
+            print(f"Успешно перешли на первую страницу абонентов: {second_try_page_title}")
+            pages_second_try = tele_two_parser.get_curent_max_paginatios_pages()
+            if pages_second_try != None:
+                print(f"pages: {pages_second_try}")
+            else:
+                print("Не удалось получить количество страниц для пагинации")
+                tele_two_parser.close_browser()
+
+        
 else:
-    print("Заголовок страницы не получен")
+    print("Не вошли")
+
 tele_two_parser.close_browser()
 
