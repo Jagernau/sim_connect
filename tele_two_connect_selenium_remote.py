@@ -5,6 +5,7 @@ import time
 from selenium.webdriver.common.by import By
 import random
 from logger import logger as log
+import help_funcs
 
 tel_number = config.TELE_TWO_USERNAME
 password = config.TELE_TWO_PASSWORD
@@ -126,7 +127,7 @@ class TeleTwoParser:
             log.error(f"Заголовок страницы не получен: {ex}")
             return None
 
-    def get_curent_max_paginatios_pages(self):
+    def get_info_paginatios_pages(self):
         """
         Метод для получения страниц пагинации
         Отдаёт словарь с информацией о страницах:
@@ -163,6 +164,20 @@ class TeleTwoParser:
                 
             return pages
 
+    def go_next_page(self):
+        """
+        Метод для перехода на следующую страницу
+        """
+        try:
+            time.sleep(random.randint(10, 20))
+            next_page = self.browser.find_element(By.XPATH, "//*[@id='pagingNextLink']")
+            next_page.click()
+            log.info(f"Перешли на следующую страницу")
+            time.sleep(random.randint(10, 20))
+        except Exception as ex:
+            log.error(f"Перейти на следующую страницу не получилось: {ex}")
+            return None
+
 # Дальнейшие действия после
 
 
@@ -180,21 +195,39 @@ if page_title and 'мобильной связи' in str(page_title):
     if first_page_title and 'оператор мобильной' in str(first_page_title):
         print(f"Успешно перешли на первую страницу абонентов: {first_page_title}")
         # Получение сраниц для обхода
-        pages = tele_two_parser.get_curent_max_paginatios_pages()
+        pages = tele_two_parser.get_info_paginatios_pages()
         if pages != None:
-            print(f"pages: {pages}")
+            print(f"Текущая страница: {help_funcs.get_current_page(pages)} из {help_funcs.get_max_page(pages)}")
         else:
             print("Не удалось получить количество страниц для пагинации")
             print(f"Перезахожу на первую страницу абонентов")
             tele_two_parser.go_to_first_abon_page()
             second_try_page_title = tele_two_parser.get_abon_page_title()
             print(f"Успешно перешли на первую страницу абонентов: {second_try_page_title}")
-            pages_second_try = tele_two_parser.get_curent_max_paginatios_pages()
+            pages_second_try = tele_two_parser.get_info_paginatios_pages()
             if pages_second_try != None:
-                print(f"pages: {pages_second_try}")
+                print(f"Текущая страница: {help_funcs.get_current_page(pages_second_try)} из {help_funcs.get_max_page(pages_second_try)}")
             else:
                 print("Не удалось получить количество страниц для пагинации")
                 tele_two_parser.close_browser()
+
+
+        # Переход на следующую страницу
+        tele_two_parser.go_next_page()
+        # Проверка корректности отдачи страницы
+        next_page_title = tele_two_parser.get_abon_page_title()
+        if next_page_title and 'оператор мобильной' in str(next_page_title):
+            print(f"Успешно перешли на следующую страницу абонентов: {next_page_title}")
+            pages = tele_two_parser.get_info_paginatios_pages()
+            if pages != None:
+                print(f"Текущая страница: {help_funcs.get_current_page(pages)} из {help_funcs.get_max_page(pages)}")
+            else:
+                print("Не удалось получить количество страниц для пагинации")
+                tele_two_parser.close_browser()
+        else:
+            print("Не удалось перейти на следующую страницу")
+            tele_two_parser.close_browser()
+
 
         
 else:
