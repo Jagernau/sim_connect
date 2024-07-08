@@ -1,15 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-import config
 import time
 from selenium.webdriver.common.by import By
 import random
 from logger import logger as log
-import help_funcs
-
-tel_number = config.TELE_TWO_USERNAME
-password = config.TELE_TWO_PASSWORD
-base_url = config.TELE_TWO_BASE_URL
 
 
 class TeleTwoParser:
@@ -17,7 +11,7 @@ class TeleTwoParser:
     Класс для парсинга данных сайта tele2
     Для получения данных симкарт
     """
-    def __init__(self, base_url, username, password):
+    def __init__(self, base_url, username, password, user_ip):
         """
         При инициализации принимает:
         1 Базовый адрес
@@ -31,7 +25,7 @@ class TeleTwoParser:
         self.options = Options()
         # CrossBrowser подключение к удаленному серверу
         self.browser = webdriver.Remote(
-            command_executor=f"http://{config.USER_IP}:4444/wd/hub",
+            command_executor=f"http://{user_ip}:4444/wd/hub",
             options=self.options
         )
 
@@ -49,7 +43,7 @@ class TeleTwoParser:
         try:
             self.browser.get(self.base_url)
             log.info(f"Получена Главная страница")
-            time.sleep(random.randint(1, 10))
+            time.sleep(random.randint(10, 20))
             # Нажатие кнопки входа по паролю
             password_button = self.browser.find_element(By.XPATH, "//*[@id='keycloakLoginModal']/div/div/div/div/div[2]/div/div/div/div/div/button[2]")
             log.info(f"Кнопка входа по паролю: {password_button} найдена")
@@ -77,7 +71,7 @@ class TeleTwoParser:
             time.sleep(random.randint(1, 10))
             login_button.click()
             log.info(f"Кнопка входа нажата")
-            time.sleep(random.randint(10, 20))
+            time.sleep(random.randint(10, 40))
 
         except Exception as ex:
             log.error(f"Ошибка входа в личный кабинет: {ex}")
@@ -178,60 +172,25 @@ class TeleTwoParser:
             log.error(f"Перейти на следующую страницу не получилось: {ex}")
             return None
 
-# Дальнейшие действия после
+    def get_phones_from_page(self):
+        """
+        Метод для получения номеров абонентов
+        Отдаёт список с номерами абонентов
+        """
+        try:
+            time.sleep(random.randint(10, 20))
+            msisdn_elements = self.browser.find_elements(By.CSS_SELECTOR, "div.subscriber-list__msisdn")
+
+            phones = []
+
+            for msisdn_element in msisdn_elements:
+                
+                phones.append(str(msisdn_element.text).replace(" ", "").replace("+", "").replace("-",""))
+            return phones
+        except Exception as ex:
+            log.error(f"Получить номера абонентов не получилось: {ex}")
+            return None
 
 
-tele_two_parser = TeleTwoParser(base_url, tel_number, password)
-# Вход в ЛК
-tele_two_parser.enter_to_lk_page()
-# Проверка корректности отдачи страницы
-page_title = tele_two_parser.get_lk_page_title()
-if page_title and 'мобильной связи' in str(page_title):
-    print(f"Успешно залогинились в Лк: {page_title}")
-    # Переход на первую страницу абонентов
-    tele_two_parser.go_to_first_abon_page()
-    # Проверка корректности отдачи страницы
-    first_page_title = tele_two_parser.get_abon_page_title()
-    if first_page_title and 'оператор мобильной' in str(first_page_title):
-        print(f"Успешно перешли на первую страницу абонентов: {first_page_title}")
-        # Получение сраниц для обхода
-        pages = tele_two_parser.get_info_paginatios_pages()
-        if pages != None:
-            print(f"Текущая страница: {help_funcs.get_current_page(pages)} из {help_funcs.get_max_page(pages)}")
-        else:
-            print("Не удалось получить количество страниц для пагинации")
-            print(f"Перезахожу на первую страницу абонентов")
-            tele_two_parser.go_to_first_abon_page()
-            second_try_page_title = tele_two_parser.get_abon_page_title()
-            print(f"Успешно перешли на первую страницу абонентов: {second_try_page_title}")
-            pages_second_try = tele_two_parser.get_info_paginatios_pages()
-            if pages_second_try != None:
-                print(f"Текущая страница: {help_funcs.get_current_page(pages_second_try)} из {help_funcs.get_max_page(pages_second_try)}")
-            else:
-                print("Не удалось получить количество страниц для пагинации")
-                tele_two_parser.close_browser()
 
-
-        # Переход на следующую страницу
-        tele_two_parser.go_next_page()
-        # Проверка корректности отдачи страницы
-        next_page_title = tele_two_parser.get_abon_page_title()
-        if next_page_title and 'оператор мобильной' in str(next_page_title):
-            print(f"Успешно перешли на следующую страницу абонентов: {next_page_title}")
-            pages = tele_two_parser.get_info_paginatios_pages()
-            if pages != None:
-                print(f"Текущая страница: {help_funcs.get_current_page(pages)} из {help_funcs.get_max_page(pages)}")
-            else:
-                print("Не удалось получить количество страниц для пагинации")
-                tele_two_parser.close_browser()
-        else:
-            print("Не удалось перейти на следующую страницу")
-            tele_two_parser.close_browser()
-
-
-        
-else:
-    print("Не вошли")
-
-tele_two_parser.close_browser()
 
