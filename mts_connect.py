@@ -56,7 +56,7 @@ class MtsApi:
         response = requests.post(url=url, headers=headers, data=data)
         return response.text
 
-    def get_structure_abonents(self, pageNum: int):
+    def get_structure_abonents(self, pageNum: int): # Получение симок
         """ 
         Метод для получения структуры абонентов
         Принимает:
@@ -74,7 +74,7 @@ class MtsApi:
         response = requests.get(url=url, headers=headers)
         return response.json()
 
-    def get_detail_internet_from_tel_number(self, tel_number):
+    def get_detail_internet_from_tel_number(self, tel_number): # Полный хаос не понятно
         """ 
         Метод предназначен для получения информации об остатках пакетов минут, интернет, SMS.
         Принимает:
