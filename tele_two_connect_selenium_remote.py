@@ -192,5 +192,37 @@ class TeleTwoParser:
             return None
 
 
-
+    def go_detail_page_get_info(self, tel_number):
+        """
+        Метод для перехода на страницу абонента
+        и вытаскивания информации:
+        1 Статус
+        2 Iccid
+        Принимает:
+        1 Номер телефона
+        Отдаёт словарь с информацией:
+        {
+            "status": "Статус",
+            "iccid": "Iccid"
+        }
+        """
+        try:
+            time.sleep(random.randint(10, 20))
+            self.browser.get(f"{self.base_url}/subscribers/{tel_number}")
+            log.info(f"Перешли на страницу абонента {tel_number}")
+            time.sleep(random.randint(10, 40))
+        except Exception as ex:
+            log.error(f"Перейти на страницу абонента {tel_number} не получилось: {ex}")
+            return None
+        else:
+            try:
+                status_element = self.browser.find_element(By.CSS_SELECTOR, "span.subscriber-profile-slot__status")
+                iccid_element = self.browser.find_element(By.CSS_SELECTOR, "span.subscriber-profile-slot__sim")
+                return {
+                    "status": status_element.text,
+                    "iccid": iccid_element.text
+                }
+            except Exception as ex:
+                log.error(f"Получить  об элементах {tel_number} не получилось: {ex}")
+                return None
 

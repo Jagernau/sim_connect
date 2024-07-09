@@ -1,26 +1,4 @@
-#
-# data = {
-#     'pagingPrevLink': {
-#         'text': '<<',
-#         'class': 'disabled'
-#     },
-#     'pagingNextLink': {
-#         'text': '>>',
-#         'class': 'disabled'
-#     },
-#     'pagingLinkPage1': {
-#         'text': '1',
-#         'class': 'current'
-#     },
-#     'pagingLinkPage2': {
-#         'text': '2',
-#         'class': ''
-#     },
-#     'pagingLinkPage3': {
-#         'text': '3',
-#         'class': ''
-#     }
-# }
+
 
 def get_current_page(data: dict):
     """

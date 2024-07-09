@@ -31,6 +31,9 @@ if page_title and 'мобильной связи' in str(page_title):
         # Получение сраниц для обхода
         pages = tele_two_parser.get_info_paginatios_pages()
         if pages != None:
+            current_page = help_funcs.get_current_page(pages)
+            max_page = help_funcs.get_max_page(pages)
+            print(f"Текущая страница: {current_page} из {max_page}")
             print(f"Текущая страница: {help_funcs.get_current_page(pages)} из {help_funcs.get_max_page(pages)}")
 
         else:
