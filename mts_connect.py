@@ -103,19 +103,6 @@ class MtsApi:
         response = requests.get(url=url, headers=headers)
         return response.json()
 
-    def get_detail_location_from_tel_number(self, tel_number):
-        """ 
-        Определение страны пребывания абонента
-        Принимает:
-        1 Номер телефона
-        """
-        url = f"{self.base_url}/b2b/v1/Service/CurrentSubscriberLocation?msisdn={tel_number}"
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
-        }
-        response = requests.get(url=url, headers=headers)
-        return response.json()
 
     def get_top_tarif_from_tel_number(self, tel_number):
         """ 
@@ -145,20 +132,35 @@ class MtsApi:
         response = requests.get(url=url, headers=headers)
         return response.json()
 
+    def get_all_services(self):
+        """ 
+        Информация по всем услугам
+        """
+        url = f"{self.base_url}/b2b/v1/Product/ProductInfo"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+        }
+        response = requests.get(url=url, headers=headers)
+        return response.text
+
+
+
 
 mts_api = MtsApi(base_url, username, password, accountNo=account)
 mts_api.get_access_token()
 #all_sims = mts_api.get_all_sims(parent_tel_number)
 #structure_abonents = mts_api.get_structure_abonents(pageNum=5)
-#detail_internet = mts_api.get_detail_internet_from_tel_number()
-#detail_service = mts_api.get_detail_service_from_tel_number("79101313428")
+
+detail_service = mts_api.get_detail_service_from_tel_number("79101313428")
 #detail_location = mts_api.get_detail_location_from_tel_number()
-top_tarif = mts_api.get_top_tarif_from_tel_number("79101313428")
-print(top_tarif)
+#top_tarif = mts_api.get_top_tarif_from_tel_number("79101313428")
+#get_all_services = mts_api.get_all_services()
 
 
 
-with open('top_tarif_mts.json', 'w', encoding='utf-8') as file:
-    json.dump(top_tarif, file, indent=2, ensure_ascii=False)
+
+with open('detail_service_mts.json', 'w', encoding='utf-8') as file:
+    json.dump(detail_service, file, indent=2, ensure_ascii=False)
 
 
