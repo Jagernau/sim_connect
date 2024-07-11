@@ -62,12 +62,17 @@ class BilineApi:
             "Authorization": f"Bearer {self.access_token}",
             "X-Requested-With": "XMLHttpRequest"
         }
+
         payload = {
-                "page": int(page)
-        }
+             "page": int(page),
+             "per_page": 0,
+             "order": {
+               "id": "desc"
+               }
+            }
 
 
-        response = requests.post(url=url, headers=headers, data=payload)
+        response = requests.post(url=url, headers=headers, data=json.dumps(payload))
 
         return response.json()
 
@@ -108,9 +113,9 @@ class BilineApi:
         response = requests.post(url=url, headers=headers, data=json.dumps(payload))
         return response.json()
 
-    def get_sims_paginations(self, dashboard_id: str, tarif_name: str):
+    def get_sim_services_tarif_id(self, dashboard_id: str, communication_plan_id: int):
         """ 
-        Отдаёт сим по пагинации
+        Отдаёт услуги по communication_plan_id
         :param dashboard_id: str
         :return: {}
         """
@@ -122,9 +127,34 @@ class BilineApi:
         }
         payload = {
                 "query": {
-                    "name": {
-                        "value": f'{tarif_name}',
-                        "type": "search"
+                    "id": {
+                        "value": int(communication_plan_id),
+                        "type": "eq"
+                        }
+                }
+        }
+        response = requests.post(url=url, headers=headers, data=json.dumps(payload))
+        return response.json()
+
+
+
+    def get_sim_tarif_plan_id(self, dashboard_id: str, plan_id: int):
+        """ 
+        Отдаёт тариф по plan_id
+        :param dashboard_id: str
+        :return: {}
+        """
+        url = f"{self.base_url}/api/v0/dashboards/{dashboard_id}/rate_plans"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+        payload = {
+                "query": {
+                    "id": {
+                        "value": int(plan_id),
+                        "type": "eq"
                         }
                 }
         }
@@ -133,11 +163,12 @@ class BilineApi:
 
 biline_api = BilineApi(base_url, client_id, client_secret, username, password)
 biline_api.get_access_token()
-all_sims = biline_api.get_all_sims_pag(dashboard_id, page=5)
+#all_sims = biline_api.get_all_sims_pag(dashboard_id, page=5)
 #all_serv = biline_api.get_all_services(dashboard_id)
 #detail_serv_name = biline_api.get_detail_services_name(dashboard_id, "Beeline Russia CSD 20 GRPS LTE")
+#detail_serv_id = biline_api.get_sim_services_tarif_id(dashboard_id, 1842202)
+detail_tarif = biline_api.get_sim_tarif_plan_id(dashboard_id, 6255)
 
-
-with open('all_sims_page_beeline_5.json', 'w', encoding='utf-8') as file:
-    json.dump(all_sims, file, indent=2, ensure_ascii=False)
+with open('detail_tarif_id.json', 'w', encoding='utf-8') as file:
+    json.dump(detail_tarif, file, indent=2, ensure_ascii=False)
 
