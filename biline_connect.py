@@ -49,11 +49,12 @@ class BilineApi:
             log.error(f"Ошибка получения токена от Билайн: {response.status_code} - {response.text}")
 
 
-    def get_all_sims(self, dashboard_id: str):
+    def get_all_sims_pag(self, dashboard_id: str, page: str):
         """ 
         Метод для получения всех SIM-карт Требуется пагинация
         :param dashboard_id: str
-        :return: str
+        :param page: int
+        :return: dict
         """
         url = f"{self.base_url}/api/v0/dashboards/{dashboard_id}/sim_cards/list_all_sim"
         headers = {
@@ -61,11 +62,82 @@ class BilineApi:
             "Authorization": f"Bearer {self.access_token}",
             "X-Requested-With": "XMLHttpRequest"
         }
-        response = requests.post(url=url, headers=headers)
+        payload = {
+                "page": int(page)
+        }
+
+
+        response = requests.post(url=url, headers=headers, data=payload)
+
         return response.json()
 
+    def get_all_services(self, dashboard_id: str):
+        """ 
+        Выводит все услуги 
+        :param dashboard_id: str
+        :return: {}
+        """
+        url = f"{self.base_url}/api/v0/dashboards/{dashboard_id}/communication_plans"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+        response = requests.post(url=url, headers=headers)
+        return response.json()
+    def get_detail_services_name(self, dashboard_id: str, tarif_name: str):
+        """ 
+        Выводит услугу по имени 
+        :param dashboard_id: str
+        :return: {}
+        """
+        url = f"{self.base_url}/api/v0/dashboards/{dashboard_id}/communication_plans"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+        payload = {
+                "query": {
+                    "name": {
+                        "value": f'{tarif_name}',
+                        "type": "search"
+                        }
+                }
+        }
+        response = requests.post(url=url, headers=headers, data=json.dumps(payload))
+        return response.json()
 
-# biline_api = BilineApi(base_url, client_id, client_secret, username, password)
-# biline_api.get_access_token()
-# all_sims = biline_api.get_all_sims(dashboard_id)
-# print(all_sims)
+    def get_sims_paginations(self, dashboard_id: str, tarif_name: str):
+        """ 
+        Отдаёт сим по пагинации
+        :param dashboard_id: str
+        :return: {}
+        """
+        url = f"{self.base_url}/api/v0/dashboards/{dashboard_id}/communication_plans"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
+            "X-Requested-With": "XMLHttpRequest"
+        }
+        payload = {
+                "query": {
+                    "name": {
+                        "value": f'{tarif_name}',
+                        "type": "search"
+                        }
+                }
+        }
+        response = requests.post(url=url, headers=headers, data=json.dumps(payload))
+        return response.json()
+
+biline_api = BilineApi(base_url, client_id, client_secret, username, password)
+biline_api.get_access_token()
+all_sims = biline_api.get_all_sims_pag(dashboard_id, page=5)
+#all_serv = biline_api.get_all_services(dashboard_id)
+#detail_serv_name = biline_api.get_detail_services_name(dashboard_id, "Beeline Russia CSD 20 GRPS LTE")
+
+
+with open('all_sims_page_beeline_5.json', 'w', encoding='utf-8') as file:
+    json.dump(all_sims, file, indent=2, ensure_ascii=False)
+
