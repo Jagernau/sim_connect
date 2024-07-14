@@ -160,7 +160,7 @@ detail_service = mts_api.get_detail_service_from_tel_number("79101313428")
 
 
 
-with open('detail_service_mts.json', 'w', encoding='utf-8') as file:
+with open('mts_service_from_tel_number.json', 'w', encoding='utf-8') as file:
     json.dump(detail_service, file, indent=2, ensure_ascii=False)
 
 
